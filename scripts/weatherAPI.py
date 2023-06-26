@@ -1,8 +1,21 @@
-pip install requests
+import sys 
+!{sys.executable} -m pip requests geopy 
 
-#importing requests for API 
+#importing libraries
 import requests
-import pandas as pd 
+import geopy.geocoders import Nominatim
+import json
+
+with open('data/1.json', 'r') as f: 
+    data = json.load(f)
+
+#read the json, create an airport list of names, and store those into a df 
+geolocator = Nominatim(user_agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/114.")
+location = geolocator.geocode("JFK International Airport")
+
+print(location.address)
+
+print((location.latitude, location.longitude))
 
 #sample latitude and longitude parameters
 latitudes = ["40.77", "41.23", "39.95"]  # Insert list of multiple latitudes
