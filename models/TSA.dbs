@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<project name="TSA " id="Project-22c9" database="LogicalDesign" >
+	<schema name="INSTANCE" catalogname="TSA " >
+		<table name="AirportDimension" prior="Entity" >
+			<column name="airport_id" type="INT" jt="4" mandatory="y" />
+			<column name="airport_code" type="VARCHAR" length="3" jt="12" />
+			<column name="airport_name" type="VARCHAR" length="100" jt="12" />
+			<column name="city" type="VARCHAR" length="100" jt="12" />
+			<column name="state" type="VARCHAR" length="100" jt="12" />
+			<column name="latitude" type="DECIMAL" jt="3" />
+			<column name="longitude" type="DECIMAL" jt="3" />
+			<index name="pk_AirportDimension" unique="PRIMARY_KEY" >
+				<column name="airport_id" />
+			</index>
+		</table>
+		<table name="DateDimensions" prior="Entity" >
+			<column name="Hour_date_id" type="INT" jt="4" mandatory="y" />
+			<column name="date" type="DATE" jt="91" />
+			<column name="hour_of_day" type="DATETIME" jt="93" />
+			<column name="day_of_week" type="VARCHAR" length="10" jt="12" />
+			<column name="month" type="VARCHAR" length="10" jt="12" />
+			<column name="year" type="INT" jt="4" />
+			<index name="pk_Entity" unique="PRIMARY_KEY" >
+				<column name="Hour_date_id" />
+			</index>
+		</table>
+		<table name="FactTable" prior="Entity" >
+			<column name="Fact_Id" type="INT" jt="4" mandatory="y" />
+			<column name="temperature" type="DECIMAL" jt="3" />
+			<column name="humidity" type="DECIMAL" jt="3" />
+			<column name="apparent_temperature" type="DECIMAL" jt="3" />
+			<column name="precipitation_rain" type="DECIMAL" jt="3" />
+			<column name="rain" type="DECIMAL" jt="3" />
+			<column name="snowfall" type="DECIMAL" jt="3" />
+			<column name="snow_depth" type="DECIMAL" jt="3" />
+			<column name="cloud_cover_total" type="DECIMAL" jt="3" />
+			<column name="wind_speed" type="DECIMAL" jt="3" />
+			<column name="wind_direction" type="VARCHAR" length="20" jt="12" />
+			<column name="Hour_date_id" type="INT" jt="4" mandatory="y" />
+			<column name="airport_id" type="INT" jt="4" mandatory="y" />
+			<index name="pk_FactTable" unique="PRIMARY_KEY" >
+				<column name="Fact_Id" />
+				<column name="Hour_date_id" />
+				<column name="airport_id" />
+			</index>
+			<fk name="fk_FactTable_DateDimensions" to_schema="TSA .INSTANCE" to_table="DateDimensions" type="Identifying" mandatory="y" cardinality="ZeroMore" range_from="0" range_to="0" >
+				<fk_column name="Hour_date_id" pk="Hour_date_id" />
+			</fk>
+			<fk name="fk_FactTable_AirportDimension" to_schema="TSA .INSTANCE" to_table="AirportDimension" type="Identifying" mandatory="y" cardinality="ZeroMore" range_from="0" range_to="0" >
+				<fk_column name="airport_id" pk="airport_id" />
+			</fk>
+		</table>
+	</schema>
+	<layout name="Default Layout" id="Layout-157c" show_relation="columns" >
+		<entity schema="TSA .INSTANCE" name="AirportDimension" color="C1D8EE" x="96" y="160" />
+		<entity schema="TSA .INSTANCE" name="DateDimensions" color="C1D8EE" x="336" y="288" />
+		<entity schema="TSA .INSTANCE" name="FactTable" color="C1D8EE" x="48" y="384" />
+		<callout x="192" y="48" pointer="Round" >
+			<comment><![CDATA[This is a layout - a diagram with tools.
+- Create new entities by right-clicking the layout. 
+- Double-click entity headers to edit.
+- For a better understanding of the schema, create multiple layouts.
+- Deploy the model into the database by converting it first to the physical design.]]></comment>
+		</callout>
+	</layout>
+</project>
