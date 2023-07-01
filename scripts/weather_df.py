@@ -9,6 +9,7 @@ import json
 import PyPDF2
 import re
 import pandas as pd
+import os
 
 #expanding on unique_aiport.ipynb 
 def extract_text_from_pdf(file_path):
@@ -58,21 +59,69 @@ def get_weather_data(latitude, longitude):
     data = response.json()
     return data
 
-#create an empty DataFrame
-weather_df = pd.DataFrame()
+#creating the directory path for json files from one PDF 
+json_directory = "/Users/megan/Downloads/CIS4400/data/json_directory"
+
+#creating the directory if it doesn't exist
+os.makedirs(json_directory, exist_ok=True)
 
 #iterating over the airport coordinates
-for latitude, longitude in airport_coordinates:
+for i, (latitude, longitude) in enumerate(airport_coordinates):
     weather_data = get_weather_data(latitude, longitude)
-    
-    #convert the weather data to a DataFrame
-    df = pd.DataFrame(weather_data)
-    
-     #append the DataFrame to the main weather_df
-    weather_df = pd.concat([weather_df, df])
-    
-#reset the index of the weather_df
-weather_df.reset_index(drop=True, inplace=True)
+
+    #convert the weather data to JSON format
+    json_data = json.dumps(weather_data)
+
+    #create a filename for the JSON file
+    filename = f"{json_directory}/{airport_codes[i]}_weather.json"
+
+    #write the JSON data to a file
+    with open(filename, 'w') as file:
+        file.write(json_data)
+
+    print(f"Saved weather data for airport {i+1}")
+
+print("All weather data saved successfully.")
+
+#create an empty DataFrame to store the combined weather data
+weather_df = pd.DataFrame()
+
+#iterate over each JSON file in the json_directory -- gets weather data for each airport and concatenates
+#it into the main weather dataframe. what's missing is the location it correlates with 
+for filename in os.listdir(json_directory):
+    if filename.endswith(".json"):
+        file_path = os.path.join(json_directory, filename)
+
+        #load the JSON file
+        with open(file_path, 'r') as file:
+            json_data = json.load(file)
+
+        #create a DataFrame for the hourly weather data
+        hourly_data = json_data['hourly']
+        df = pd.DataFrame(hourly_data)
+
+        #append the DataFrame to the main weather_df
+        weather_df = pd.concat([weather_df, df])
 
 #preview the resulting weather DataFrame
 weather_df.head()
+
+#creating a dataframe with the latitude and longitudes provided. the hourly column is 
+#where weather_df comes from 
+location_df = pd.DataFrame()
+
+#iterating over the airport coordinates
+for latitude, longitude in airport_coordinates:
+    location_data = get_weather_data(latitude, longitude)
+    
+    #convert the weather data to a DataFrame
+    df = pd.DataFrame(location_data)
+    
+     #append the DataFrame to the main weather_df
+    location_df = pd.concat([location_df, df])
+    
+#reset the index of the weather_df
+location_df.reset_index(drop=True, inplace=True)
+
+#preview the resulting weather DataFrame
+location_df.head()
