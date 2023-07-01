@@ -106,6 +106,11 @@ for filename in os.listdir(json_directory):
 #preview the resulting weather DataFrame
 weather_df.head()
 
+#save the weather_df DataFrame as a CSV file
+weather_csv_path = "/Users/megan/Downloads/CIS4400/data/weather_data.csv"
+weather_df.to_csv(weather_csv_path, index=False)
+print("weather_df saved as weather_data.csv")
+
 #creating a dataframe with the latitude and longitudes provided. the hourly column is 
 #where weather_df comes from 
 location_df = pd.DataFrame()
@@ -122,6 +127,11 @@ for latitude, longitude in airport_coordinates:
     
 #reset the index of the weather_df
 location_df.reset_index(drop=True, inplace=True)
+
+#save the location_df DataFrame as a CSV file
+location_csv_path = "/Users/megan/Downloads/cis4400/data/location_data.csv"
+location_df.to_csv(location_csv_path, index=False)
+print("location_df saved as location_data.csv")
 
 #preview the resulting weather DataFrame
 location_df.head()
