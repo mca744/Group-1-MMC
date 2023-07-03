@@ -9,23 +9,24 @@
 			<column name="state" type="VARCHAR" length="100" jt="12" />
 			<column name="latitude" type="DECIMAL" jt="3" />
 			<column name="longitude" type="DECIMAL" jt="3" />
+			<column name="checkpoint" prior="Checkpoint" type="VARCHAR" length="50" jt="12" />
 			<index name="pk_AirportDimension" unique="PRIMARY_KEY" >
 				<column name="airport_id" />
 			</index>
 		</table>
 		<table name="DateDimensions" prior="Entity" >
-			<column name="Hour_date_id" type="INT" jt="4" mandatory="y" />
+			<column name="hour_date_id" prior="Hour_date_id" type="INT" jt="4" mandatory="y" />
 			<column name="date" type="DATE" jt="91" />
 			<column name="hour_of_day" type="DATETIME" jt="93" />
 			<column name="day_of_week" type="VARCHAR" length="10" jt="12" />
 			<column name="month" type="VARCHAR" length="10" jt="12" />
 			<column name="year" type="INT" jt="4" />
 			<index name="pk_Entity" unique="PRIMARY_KEY" >
-				<column name="Hour_date_id" />
+				<column name="hour_date_id" />
 			</index>
 		</table>
 		<table name="FactTable" prior="Entity" >
-			<column name="Fact_Id" type="INT" jt="4" mandatory="y" />
+			<column name="fact_Id" prior="Fact_Id" type="INT" jt="4" mandatory="y" />
 			<column name="temperature" type="DECIMAL" jt="3" />
 			<column name="humidity" type="DECIMAL" jt="3" />
 			<column name="apparent_temperature" type="DECIMAL" jt="3" />
@@ -36,15 +37,16 @@
 			<column name="cloud_cover_total" type="DECIMAL" jt="3" />
 			<column name="wind_speed" type="DECIMAL" jt="3" />
 			<column name="wind_direction" type="VARCHAR" length="20" jt="12" />
-			<column name="Hour_date_id" type="INT" jt="4" mandatory="y" />
+			<column name="hour_date_id" prior="Hour_date_id" type="INT" jt="4" mandatory="y" />
 			<column name="airport_id" type="INT" jt="4" mandatory="y" />
+			<column name="total_pax" type="NUMERIC" jt="2" />
 			<index name="pk_FactTable" unique="PRIMARY_KEY" >
-				<column name="Fact_Id" />
-				<column name="Hour_date_id" />
+				<column name="fact_Id" />
+				<column name="hour_date_id" />
 				<column name="airport_id" />
 			</index>
 			<fk name="fk_FactTable_DateDimensions" to_schema="TSA .INSTANCE" to_table="DateDimensions" type="Identifying" mandatory="y" cardinality="ZeroMore" range_from="0" range_to="0" >
-				<fk_column name="Hour_date_id" pk="Hour_date_id" />
+				<fk_column name="hour_date_id" pk="hour_date_id" />
 			</fk>
 			<fk name="fk_FactTable_AirportDimension" to_schema="TSA .INSTANCE" to_table="AirportDimension" type="Identifying" mandatory="y" cardinality="ZeroMore" range_from="0" range_to="0" >
 				<fk_column name="airport_id" pk="airport_id" />
