@@ -1,60 +1,75 @@
-IF NOT EXISTS(SELECT * FROM sys.databases WHERE name='TSA_DW')
-BEGIN
-CREATE DATABASE [TSA_DW]
-END;
-GO
+import snowflake.connector
 
-USE [TSA_DW];
-GO
+# Set up connection parameters
+CONNECTION_PARAMS = {
+    'user': 'YOUR_USERNAME',
+    'password': 'YOUR_PASSWORD',
+    'account': 'YOUR_ACCOUNT_URL',
+    'warehouse': 'YOUR_WAREHOUSE',
+    'database': 'YOUR_DATABASE',
+    'schema': 'YOUR_SCHEMA',
+}
 
-CREATE SCHEMA [TSA];
-GO
+# Establish a connection
+con = snowflake.connector.connect(**CONNECTION_PARAMS)
 
-CREATE  TABLE [TSA_DW].TSA.AirportDimension ( 
-	[airport id]         int      NOT NULL,
-	[airport code]       varchar(3)      NULL,
-	[airport name]       varchar(100)      NULL,
-	city                 varchar(100)      NULL,
-	state                varchar(100)      NULL,
-	latitude             decimal      NULL,
-	longitude            decimal      NULL,
-	[checkpoint]         varchar(50)      NULL,
-	CONSTRAINT [pk AirportDimension] PRIMARY KEY  ( [airport id] ) 
- );
-GO
+# Create a cursor object
+cur = con.cursor()
 
-CREATE  TABLE [TSA_DW].TSA.DateDimensions ( 
-	[hour date id]       int      NOT NULL,
-	date                 date      NULL,
-	[hour of day]        datetime      NULL,
-	[day of week]        varchar(10)      NULL,
-	month                varchar(10)      NULL,
-	year                 int      NULL,
-	CONSTRAINT [pk Entity] PRIMARY KEY  ( [hour date id] ) 
- );
-GO
+# SQL statements for creating tables
+sql_create_table_airportdimension = """
+CREATE TABLE AIRPORTDIMENSION (
+    "AIRPORT ID" INTEGER NOT NULL,
+    "AIRPORT CODE" VARCHAR(3),
+    "AIRPORT NAME" VARCHAR(100),
+    CITY VARCHAR(100),
+    STATE VARCHAR(100),
+    LATITUDE NUMBER,
+    LONGITUDE NUMBER,
+    CHECKPOINT VARCHAR(50),
+    CONSTRAINT "PK AIRPORTDIMENSION" PRIMARY KEY ("AIRPORT ID")
+)
+"""
 
-CREATE  TABLE [TSA_DW].TSA.FactTable ( 
-	[fact Id]            int      NOT NULL,
-	temperature          decimal      NULL,
-	humidity             decimal      NULL,
-	[apparent temperature] decimal      NULL,
-	[precipitation rain] decimal      NULL,
-	rain                 decimal      NULL,
-	snowfall             decimal      NULL,
-	[snow depth]         decimal      NULL,
-	[cloud cover total]  decimal      NULL,
-	[wind speed]         decimal      NULL,
-	[wind direction]     varchar(20)      NULL,
-	[hour date id]       int      NOT NULL,
-	[airport id]         int      NOT NULL,
-	[total pax]          numeric      NULL,
-	CONSTRAINT [pk FactTable] PRIMARY KEY  ( [fact Id], [hour date id], [airport id] ) 
- );
-GO
+sql_create_table_datedimensions = """
+CREATE TABLE DATEDIMENSIONS (
+    "HOUR DATE ID" INTEGER NOT NULL,
+    DATE DATE,
+    "HOUR OF DAY" DATETIME,
+    "DAY OF WEEK" VARCHAR(10),
+    MONTH VARCHAR(10),
+    YEAR INTEGER,
+    CONSTRAINT "PK ENTITY" PRIMARY KEY ("HOUR DATE ID")
+)
+"""
 
-ALTER TABLE [TSA_DW].TSA.FactTable ADD CONSTRAINT [fk FactTable DateDimensions] FOREIGN KEY ( [hour date id] ) REFERENCES [TSA ].INSTANCE.DateDimensions( [hour date id] );
-GO
+sql_create_table_facttable = """
+CREATE TABLE FACTTABLE (
+    "FACT ID" INTEGER NOT NULL,
+    TEMPERATURE NUMBER,
+    HUMIDITY NUMBER,
+    "APPARENT TEMPERATURE" NUMBER,
+    "PRECIPITATION RAIN" NUMBER,
+    RAIN NUMBER,
+    SNOWFALL NUMBER,
+    "SNOW DEPTH" NUMBER,
+    "CLOUD COVER TOTAL" NUMBER,
+    "WIND SPEED" NUMBER,
+    "WIND DIRECTION" VARCHAR(20),
+    "HOUR DATE ID" INTEGER NOT NULL,
+    "AIRPORT ID" INTEGER NOT NULL,
+    "TOTAL PAX" NUMERIC,
+    CONSTRAINT "PK FACTTABLE" PRIMARY KEY ("FACT ID", "HOUR DATE ID", "AIRPORT ID"),
+    CONSTRAINT "FK FACTTABLE DATEDIMENSIONS" FOREIGN KEY ("HOUR DATE ID") REFERENCES DATEDIMENSIONS("HOUR DATE ID"),
+    CONSTRAINT "FK FACTTABLE AIRPORTDIMENSION" FOREIGN KEY ("AIRPORT ID") REFERENCES AIRPORTDIMENSION("AIRPORT ID")
+)
+"""
 
-ALTER TABLE [TSA_DW].TSA.FactTable ADD CONSTRAINT [fk FactTable AirportDimension] FOREIGN KEY ( [airport id] ) REFERENCES [TSA ].INSTANCE.AirportDimension( [airport id] );
-GO
+# Execute the SQL commands
+cur.execute(sql_create_table_airportdimension)
+cur.execute(sql_create_table_datedimensions)
+cur.execute(sql_create_table_facttable)
+
+# Close the cursor and connection
+cur.close()
+con.close()
